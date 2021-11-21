@@ -3,11 +3,13 @@ package appium14;
 import java.io.File;
 import java.util.concurrent.TimeUnit;
 
+import appium16.AndroidSeverFlagEx;
 import capability_appium14.MobileCapabilityEx;
 import io.appium.java_client.MobileElement;
 import io.appium.java_client.android.AndroidDriver;
 import io.appium.java_client.service.local.AppiumDriverLocalService;
 import io.appium.java_client.service.local.AppiumServiceBuilder;
+import io.appium.java_client.service.local.flags.ServerArgument;
 import org.openqa.selenium.remote.DesiredCapabilities;
 
 public class Driver {
@@ -19,6 +21,8 @@ public class Driver {
     public static void startAppiumServer() {
         AppiumServiceBuilder appiumServiceBuilder = new AppiumServiceBuilder();
         appiumServiceBuilder.withIPAddress("127.0.0.1").usingAnyFreePort();
+        //Auto download chromdriver
+        appiumServiceBuilder.withArgument(AndroidSeverFlagEx.ALLOW_INSECURE,"chromedriver_autodownload");
         appiumServiceBuilder.usingDriverExecutable(new File(NODE_LOCATION));
         appiumServiceBuilder.withAppiumJS(new File(APPIUM_LOCATION));
         appiumServer = AppiumDriverLocalService.buildService(appiumServiceBuilder);
@@ -47,7 +51,7 @@ public class Driver {
         desiredCapabilities.setCapability(MobileCapabilityEx.APP_PACKAGE, "com.wdiodemoapp");
         desiredCapabilities.setCapability(MobileCapabilityEx.APP_ACTIVITY, "com.wdiodemoapp.MainActivity");
 //        desiredCapabilities.setCapability("noReset", "false");
-        desiredCapabilities.setCapability(MobileCapabilityEx.NEW_COMMAND_TIMEOUT, 120);
+        desiredCapabilities.setCapability(MobileCapabilityEx.NEW_COMMAND_TIMEOUT, 60);
 
         androidDriver = new AndroidDriver<>(appiumServer.getUrl(), desiredCapabilities);//connect with all desired capability
         androidDriver.manage().timeouts().implicitlyWait(60L, TimeUnit.SECONDS);
