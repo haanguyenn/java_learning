@@ -5,11 +5,14 @@ import io.appium.java_client.MobileElement;
 import io.appium.java_client.android.AndroidDriver;
 import models.components.global.BottomNavComponent;
 import models.pages.LoginPage;
+import org.testng.Assert;
+import org.testng.annotations.Test;
+import org.testng.asserts.SoftAssert;
 
 public class LoginTest {
-    public static void main(String[] args) {
+    @Test
+    public void loginWithCorrectCreds() {
         Driver.startAppiumServer();
-
         try {
             AndroidDriver<MobileElement> androidDriver = Driver.getAndroidDriver();
             LoginPage loginPage = new LoginPage(androidDriver);
@@ -23,8 +26,22 @@ public class LoginTest {
             loginPage.clickOnLoginBtn();
 
             //Get login text msg
-            String loginMsg = loginPage.loginDialogueComponent().getMsgTitleSel();
-            System.out.println(loginMsg);
+            String actualLoginMsg = loginPage.loginDialogueComponent().getMsgTitleSel();
+            String errorMsg = "[ERR] Login msg is incorrect";
+            boolean isTitleCorrect = actualLoginMsg.equals("success");
+
+            //Verification
+//            Assert.assertEquals(actualLoginMsg,"success", "[ERR] Login msg is incorrect");
+
+            //SoftAssert. NEED to call assertAll at the end. If not, scripts always Passed
+            SoftAssert softAssert = new SoftAssert();
+            softAssert.assertTrue(isTitleCorrect, errorMsg);
+            softAssert.assertEquals(actualLoginMsg,"success", "Hello");
+            softAssert.assertAll();
+
+            //Hard assertion: stop when error happens => in this case, sout never run
+            //Assert.assertTrue(isTitleCorrect,errorMsg);
+            //System.out.println("hello world");
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -33,4 +50,3 @@ public class LoginTest {
         }
     }
 }
-
