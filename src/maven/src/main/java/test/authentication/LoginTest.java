@@ -5,13 +5,15 @@ import io.appium.java_client.MobileElement;
 import io.appium.java_client.android.AndroidDriver;
 import models.components.global.BottomNavComponent;
 import models.pages.LoginPage;
-import org.testng.Assert;
+import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 import org.testng.asserts.SoftAssert;
+import test_data.LoginCreds;
+import test_data.authentication.DataObjectBuilder;
 
 public class LoginTest {
-    @Test
-    public void loginWithCorrectCreds() {
+    @Test(dataProvider = "loginCredsData")
+    public void loginWithCorrectCreds(LoginCreds loginCreds) {
         Driver.startAppiumServer();
         try {
             AndroidDriver<MobileElement> androidDriver = Driver.getAndroidDriver();
@@ -21,9 +23,10 @@ public class LoginTest {
             bottomNavComponent.clickLoginLabel();
 
             //Fill login form
-            loginPage.inputUsername("hello@gmail.com");
-            loginPage.inputPassword("12345678");
-            loginPage.clickOnLoginBtn();
+            loginPage
+                    .inputUsername(loginCreds.getUsername())
+                    .inputPassword(loginCreds.getPassword())
+                    .clickOnLoginBtn();
 
             //Get login text msg
             String actualLoginMsg = loginPage.loginDialogueComponent().getMsgTitleSel();
@@ -36,7 +39,7 @@ public class LoginTest {
             //SoftAssert. NEED to call assertAll at the end. If not, scripts always Passed
             SoftAssert softAssert = new SoftAssert();
             softAssert.assertTrue(isTitleCorrect, errorMsg);
-            softAssert.assertEquals(actualLoginMsg,"success", "Hello");
+            softAssert.assertEquals(actualLoginMsg, "success", "Hello");
             softAssert.assertAll();
 
             //Hard assertion: stop when error happens => in this case, sout never run
@@ -48,5 +51,13 @@ public class LoginTest {
         } finally {
             Driver.stopAppiumServer();
         }
+    }
+
+    //2-dimension arrays,
+    @DataProvider
+    public LoginCreds[] loginCredsData() {
+        String jsonPath = "/src/main/resources/test-data/loginCredsArray.json";
+        LoginCreds[] loginCreds = DataObjectBuilder.buildLoginCreds(jsonPath);
+        return loginCreds;
     }
 }
